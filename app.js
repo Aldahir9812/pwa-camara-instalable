@@ -45,10 +45,21 @@ function inicializarServiceWorker() {
     navigator.serviceWorker.register('./sw.js')
       .then(function (registro) {
         console.log('Service Worker registrado exitosamente con ámbito:', registro.scope);
+        // Comprobar activamente si hay una nueva versión del Service Worker
+        registro.update();
       })
       .catch(function (error) {
         console.error('Error al registrar el Service Worker:', error);
       });
+
+    // Si un nuevo Service Worker se activa, recargar la página para mostrar el contenido fresco
+    var recargando = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!recargando) {
+        recargando = true;
+        window.location.reload();
+      }
+    });
   } else {
     console.warn('Los Service Workers no son soportados en este navegador.');
   }

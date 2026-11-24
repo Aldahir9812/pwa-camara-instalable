@@ -4,7 +4,7 @@
 // Restricción académica: 100% Vanilla JS, Promesas puras (.then / .catch), SIN async/await
 // ============================================================================
 
-var NOMBRE_CACHE = 'inspeccion-pwa-v2';
+var NOMBRE_CACHE = 'inspeccion-pwa-v3';
 
 var ARCHIVOS_PRECACHE = [
   './',
