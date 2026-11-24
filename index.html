@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Inspección Visual PWA</title>
+
+  <!-- Metadatos estándar PWA (Universal / Android / Desktop) -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Captura de evidencia fotográfica con acceso consciente a cámara frontal y trasera en iOS y Android.">
+
+  <!-- Metadatos y enlaces específicos para iPhone (iOS / WebKit) -->
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="InspecciónPWA">
+
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Encabezado de la Aplicación -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Inspección Visual PWA</h1>
+          <p class="tagline">Multiplataforma (iOS & Android) • UX Ética</p>
+        </div>
+      </div>
+      <!-- Indicador dinámico de entorno (detectado por capacidades) -->
+      <div class="header-badges">
+        <div id="indicador-plataforma" class="badge badge-platform">Plataforma...</div>
+        <div id="indicador-entorno" class="badge badge-neutral">Detectando...</div>
+      </div>
+    </header>
+
+    <!-- Sección de Instalación para Android / Chromium (beforeinstallprompt) -->
+    <section id="seccion-instalacion-chromium" class="banner-instalacion" hidden>
+      <div class="banner-content">
+        <span class="banner-icon">🤖</span>
+        <div class="banner-info">
+          <strong>Instalar en Android</strong>
+          <small>Ejecuta la app a pantalla completa sin la barra de Chrome.</small>
+        </div>
+      </div>
+      <button id="btn-instalar" class="btn btn-install">Instalar App</button>
+    </section>
+
+    <!-- Sección de Instrucciones Manuales para iPhone / Safari (iOS WebKit) -->
+    <section id="instrucciones-ios" class="card-instrucciones card-ios" hidden>
+      <div class="card-instrucciones-header">
+        <span class="platform-icon"></span>
+        <h3>Instalación en iPhone (iOS)</h3>
+      </div>
+      <p class="card-instrucciones-desc">
+        Safari en iOS no dispara eventos de instalación automática. Sigue estos pasos:
+      </p>
+      <ol class="steps-list">
+        <li>Abre la aplicación en <strong>Safari</strong>.</li>
+        <li>Pulsa el botón <strong>Compartir</strong> <span class="share-icon" aria-label="Icono compartir">⎋</span> (icono de cuadro con flecha hacia arriba).</li>
+        <li>Desplázate y pulsa <strong>"Agregar a pantalla de inicio"</strong>.</li>
+        <li>Toca <strong>"Agregar"</strong> para confirmar.</li>
+      </ol>
+    </section>
+
+    <!-- Sección de Instrucciones Manuales para Android (Alternativa sin beforeinstallprompt) -->
+    <section id="instrucciones-android" class="card-instrucciones card-android" hidden>
+      <div class="card-instrucciones-header">
+        <span class="platform-icon">🤖</span>
+        <h3>Instalación Manual en Android</h3>
+      </div>
+      <p class="card-instrucciones-desc">
+        Si tu navegador no muestra el botón de instalación automática:
+      </p>
+      <ol class="steps-list">
+        <li>Toca el menú de tres puntos (<strong>⋮</strong>) en la esquina superior derecha.</li>
+        <li>Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Agregar a la pantalla principal"</strong>.</li>
+        <li>Confirma tocando <strong>"Instalar"</strong>.</li>
+      </ol>
+    </section>
+
+    <!-- Área del Visor de Video y Cámara -->
+    <main class="main-content">
+      <div class="visor-container">
+        <!-- Elemento de Video: autoplay, playsinline y muted son OBLIGATORIOS para iOS/Safari y Android -->
+        <video id="visor-camara" autoplay playsinline muted></video>
+
+        <!-- Placeholder visual cuando la cámara está apagada -->
+        <div id="placeholder-camara" class="visor-placeholder">
+          <div class="placeholder-graphic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+              <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2"></line>
+            </svg>
+          </div>
+          <p class="placeholder-title">Cámara Desactivada</p>
+          <small class="placeholder-subtitle">Pulsa el botón inferior para solicitar acceso consciente</small>
+        </div>
+
+        <!-- Indicador de lente activo sobre el video -->
+        <div id="badge-lente" class="badge-lente" hidden>
+          <span class="lente-dot"></span>
+          <span id="texto-lente">Lente Trasero</span>
+        </div>
+      </div>
+
+      <!-- Tarjeta Ética de Pre-Permiso UX (Oculta por defecto) -->
+      <section id="aviso-permiso" class="card-prepermiso" hidden>
+        <div class="prepermiso-header">
+          <span class="prepermiso-icon">🛡️</span>
+          <h3>Consentimiento de Acceso a Cámara</h3>
+        </div>
+        <div class="prepermiso-body">
+          <p>
+            Esta aplicación requiere acceso a tu cámara únicamente para mostrar una vista previa local en tiempo real en la pantalla.
+          </p>
+          <ul class="prepermiso-detalles">
+            <li><strong>Privacidad garantizada:</strong> Ninguna imagen ni video se graba, almacena ni envía a servidores externos.</li>
+            <li><strong>Soporte Multiplataforma:</strong> Compatible con sensores traseros y frontales de iPhone y Android.</li>
+            <li><strong>Control total:</strong> Puedes alternar entre lentes en cualquier momento o apagar el visor inmediatamente.</li>
+            <li><strong>Permiso del sistema:</strong> Al pulsar "Aceptar y Encender", el navegador mostrará el cuadro de diálogo oficial para autorizar el uso del sensor.</li>
+          </ul>
+        </div>
+        <div class="prepermiso-acciones">
+          <button id="btn-cancelar-permiso" class="btn btn-secondary">Cancelar</button>
+          <button id="btn-confirmar-permiso" class="btn btn-primary">Aceptar y Encender Cámara</button>
+        </div>
+      </section>
+
+      <!-- Barra de Mensajes y Diagnóstico de Estado -->
+      <div id="contenedor-estado" class="estado-container">
+        <span class="estado-label">Estado:</span>
+        <span id="mensaje-estado" class="estado-texto">Cámara en reposo. Esperando acción del usuario.</span>
+      </div>
+
+      <!-- Controles de la Cámara -->
+      <section class="controles-toolbar">
+        <!-- Paso 1 del Pre-Permiso: Despliega la explicación antes del hardware -->
+        <button id="btn-preparar-camara" class="btn btn-primary btn-lg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+          Solicitar Acceso a Cámara
+        </button>
+
+        <!-- Controles secundarios: activos únicamente cuando la cámara está encendida -->
+        <div id="grupo-controles-activos" class="grupo-botones" hidden>
+          <button id="btn-alternar-camara" class="btn btn-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+            </svg>
+            Cambiar a Frontal
+          </button>
+          <button id="btn-apagar-camara" class="btn btn-danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            </svg>
+            Apagar Cámara
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Pie de página pedagógico -->
+    <footer class="app-footer">
+      <small>Práctica Académica: Temas 6.1 y 6.2 — PWA Multiplataforma (iOS & Android) • Acceso Ético a Sensores</small>
+    </footer>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
